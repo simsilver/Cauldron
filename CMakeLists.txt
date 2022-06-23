@@ -1,7 +1,9 @@
 #set a debug override for the project before we change project name for Cauldron
 cmake_minimum_required(VERSION 3.6)
 
+if(MSVC)
 option (GFX_API_DX12 "Build Cauldron with DX12" ON)
+endif()
 option (GFX_API_VK "Build Cauldron with Vulkan" ON)
 
 if(NOT DEFINED GFX_API)
@@ -37,8 +39,10 @@ else()
 endif()
 
 # Check MSVC toolset version, Visual Studio 2019 required
+if(MSVC)
 if(MSVC_TOOLSET_VERSION VERSION_LESS 142)
     message(FATAL_ERROR "Cannot find MSVC toolset version 142 or greater. Please make sure Visual Studio 2019 or newer installed")
+endif()
 endif()
 
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
@@ -52,12 +56,14 @@ foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_HOME_DIRECTORY}/bin )
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
+if(MSVC)
 add_compile_options(/MP)
+endif()
 
 # reference libs used by both backends
-add_subdirectory(src/Common)
+add_subdirectory(src/common)
 add_subdirectory(libs/json)
-add_subdirectory(libs/ImGUI)
+add_subdirectory(libs/imgui)
 add_subdirectory(libs/stb)
 add_subdirectory(libs/DXC)
 add_subdirectory(libs/vectormath)

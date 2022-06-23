@@ -1,7 +1,7 @@
 #
 # Copies a set of files to a directory (only if they already don't exist or are different) 
 # Usage example:
-#     set(media_src ${CMAKE_CURRENT_SOURCE_DIR}/../../media/brdfLut.dds )
+#     set(media_src ${CMAKE_CURRENT_SOURCE_DIR}/../../media/BrdfLut.dds )
 #     copyCommand("${media_src}" ${CMAKE_HOME_DIRECTORY}/bin)
 #
 # Sometimes a proper dependency between target and copied files cannot be created
@@ -32,7 +32,7 @@ endfunction()
 # Then the target can be properly set as a dependency of other executable or library
 # Usage example:
 #     add_library(my_lib ...)
-#     set(media_src ${CMAKE_CURRENT_SOURCE_DIR}/../../media/brdfLut.dds )
+#     set(media_src ${CMAKE_CURRENT_SOURCE_DIR}/../../media/BrdfLut.dds )
 #     copyTargetCommand("${media_src}" ${CMAKE_HOME_DIRECTORY}/bin copied_media_src)
 #     add_dependencies(my_lib copied_media_src)
 #

@@ -47,10 +47,17 @@ set(FidelityFX_src
 
 add_library (Cauldron_Common STATIC ${base_src} ${GLTF_src} ${Misc_src} ${shader_compiler_src} ${media_src})
 target_link_libraries (Cauldron_Common PUBLIC NJSON STB DXC Shcore)
+if(MSVC)
 target_include_directories (Cauldron_Common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+else()
+target_include_directories (Cauldron_Common
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../../DirectXMath/Inc/
+)
+endif()
 
 set(media_src
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../media/brdfLut.dds
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../media/BrdfLut.dds
 )
 
 copyTargetCommand("${media_src}" ${CMAKE_HOME_DIRECTORY}/bin copied_common_media_src)
