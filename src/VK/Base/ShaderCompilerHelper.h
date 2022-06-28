@@ -20,7 +20,7 @@
 
 #include "Base/Device.h"
 #include "Base/ShaderCompiler.h"
-#include "base/DXCHelper.h"
+#include "Base/DXCHelper.h"
 
 class Sync;
 

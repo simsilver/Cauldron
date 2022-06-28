@@ -1,21 +1,22 @@
 include(common)
+include(libs/unix)
 
-set(base_src
-    "base/Sequence.cpp"
-    "base/Sequence.h"
-    "base/Benchmark.cpp"
-    "base/Benchmark.h"
-    "base/ImGuiHelper.cpp"
-    "base/ImGuiHelper.h"
+set(Base_src
+    "Base/Sequence.cpp"
+    "Base/Sequence.h"
+    "Base/Benchmark.cpp"
+    "Base/Benchmark.h"
+    "Base/ImGuiHelper.cpp"
+    "Base/ImGuiHelper.h"
 )
 
 set(shader_compiler_src
-    "base/ShaderCompiler.cpp"
-    "base/ShaderCompiler.h"
-    "base/ShaderCompilerCache.cpp"
-    "base/ShaderCompilerCache.h"
-    "base/DXCHelper.cpp"
-    "base/DXCHelper.h"
+    "Base/ShaderCompiler.cpp"
+    "Base/ShaderCompiler.h"
+    "Base/ShaderCompilerCache.cpp"
+    "Base/ShaderCompilerCache.h"
+    "Base/DXCHelper.cpp"
+    "Base/DXCHelper.h"
 )
 
 set(GLTF_src
@@ -45,16 +46,14 @@ set(FidelityFX_src
     ${CMAKE_CURRENT_SOURCE_DIR}/FidelityFX/include/gpu/ffx_core_portability.h
 )
 
-add_library (Cauldron_Common STATIC ${base_src} ${GLTF_src} ${Misc_src} ${shader_compiler_src} ${media_src})
+#add_library (Cauldron_Common STATIC ${Base_src} ${GLTF_src} ${Misc_src} ${shader_compiler_src} ${media_src})
+ add_library (Cauldron_Common STATIC stdafx.cpp ${media_src}
+   "Base/Sequence.cpp"
+   "Base/ShaderCompilerCache.cpp"
+   "Misc/Misc.cpp"
+	 )
 target_link_libraries (Cauldron_Common PUBLIC NJSON STB DXC Shcore)
-if(MSVC)
 target_include_directories (Cauldron_Common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-else()
-target_include_directories (Cauldron_Common
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../../DirectXMath/Inc/
-)
-endif()
 
 set(media_src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../media/BrdfLut.dds
@@ -65,7 +64,7 @@ copyTargetCommand("${FidelityFX_src}" ${CMAKE_HOME_DIRECTORY}/bin/ShaderLibVK co
 copyTargetCommand("${FidelityFX_src}" ${CMAKE_HOME_DIRECTORY}/bin/ShaderLibDX copied_dx_FidelityFX_src)
 add_dependencies (Cauldron_Common copied_common_media_src copied_vk_FidelityFX_src copied_dx_FidelityFX_src)
 
-source_group("Base"         FILES ${base_src})
+source_group("Base"         FILES ${Base_src})
 source_group("GLTF"         FILES ${GLTF_src})
 source_group("Misc"         FILES ${Misc_src})
 source_group("SC"           FILES ${shader_compiler_src})

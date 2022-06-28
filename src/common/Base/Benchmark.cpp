@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include "Benchmark.h"
 #include "Sequence.h"
-#include "..\Misc\Misc.h"
+#include "../Misc/Misc.h"
 
 struct Benchmark
 {

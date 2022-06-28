@@ -21,7 +21,7 @@
 #include "SwapChain.h"
 #include "ExtFreeSyncHDR.h"
 #include "ExtDebugUtils.h"
-#include <vulkan\vulkan_win32.h>
+#include <vulkan/vulkan_win32.h>
 
 namespace CAULDRON_VK
 {

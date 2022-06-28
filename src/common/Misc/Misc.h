@@ -86,6 +86,7 @@ public:
     }
 };
 
+class LogImpl;
 class Log
 {
 public:
@@ -101,13 +102,8 @@ private:
 
     void Write(const char* LogString);
 
-    HANDLE m_FileHandle = INVALID_HANDLE_VALUE;
-    #define MAX_INFLIGHT_WRITES 32
-    
-    OVERLAPPED m_OverlappedData[MAX_INFLIGHT_WRITES];
-    uint32_t m_CurrentIOBufferIndex = 0;
+    LogImpl *pImp;
 
-    uint32_t m_WriteOffset = 0;
 };
 
 int countBits(uint32_t v);

@@ -30,12 +30,19 @@
 #include <malloc.h>
 #include <cassert>
 #include <cstdlib>
+#include <cmath>
 
+#include <aio.h>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <cstdarg>
+
+#include <sys/stat.h>
+#include <sys/types.h>
+#include "my_adapter.h"
 #endif
-
-// math API
-#include <DirectXMath.h>
-using namespace DirectX;
 
 #include <string>
 #include <map>
@@ -46,6 +53,10 @@ using namespace DirectX;
 #include <limits>
 #include <algorithm>
 #include <mutex>
+
+// math API
+#include <DirectXMath.h>
+using namespace DirectX;
 
 
 

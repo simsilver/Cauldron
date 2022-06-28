@@ -1,6 +1,8 @@
 #!/bin/sh
 
-mkdir -p VK
-cd VK
+SHELL_FOLDER=$(dirname $(readlink -f "$0"))
+dir=linux-VK
+mkdir -p "${SHELL_FOLDER}/${dir}"
+pushd $dir>/dev/null
 cmake ../.. -DGFX_API=VK
-cd ..
+popd>/dev/null

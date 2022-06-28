@@ -18,7 +18,7 @@
 // THE SOFTWARE.
 
 #include "stdafx.h"
-#include "ImguiHelper.h"
+#include "ImGuiHelper.h"
 
 static HWND g_hWnd;
 

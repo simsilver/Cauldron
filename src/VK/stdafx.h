@@ -5,6 +5,7 @@
 
 #pragma once
 
+#ifdef WIN32
 #include <SDKDDKVer.h>
 
 #define NOMINMAX    
@@ -22,12 +23,19 @@
 #include <tchar.h>
 #include <cassert>
 
+#else
+
+// C RunTime Header Files
+#include <malloc.h>
+#include <cassert>
+#include <cstdlib>
+#include <cmath>
+#include "my_adapter.h"
+#endif
+
 // GFX API 
 #include <vulkan/vulkan.h>
 
-// math API
-#include <DirectXMath.h>
-using namespace DirectX;
 
 #include <string>
 #include <map>
@@ -41,4 +49,7 @@ using namespace DirectX;
 
 //#include <Shellapi.h> 
 
+// math API
+#include <DirectXMath.h>
+using namespace DirectX;
 // TODO: reference additional headers your program requires here

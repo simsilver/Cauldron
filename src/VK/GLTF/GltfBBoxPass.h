@@ -23,7 +23,7 @@
 #include "Base/ResourceViewHeaps.h"
 #include "Base/DynamicBufferRing.h"
 #include "GLTFTexturesAndBuffers.h"
-#include "Widgets/WireframeBox.h"
+#include "widgets/WireframeBox.h"
 
 namespace CAULDRON_VK
 {

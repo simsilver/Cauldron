@@ -21,7 +21,7 @@
 #include "ShaderCompilerHelper.h"
 #include "Base/ExtDebugUtils.h"
 #include "Misc/Misc.h"
-#include "base/ShaderCompilerCache.h"
+#include "Base/ShaderCompilerCache.h"
 #include "Misc/AsyncCache.h"
 #include <codecvt>
 #include <locale>

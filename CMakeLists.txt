@@ -67,6 +67,7 @@ add_subdirectory(libs/imgui)
 add_subdirectory(libs/stb)
 add_subdirectory(libs/DXC)
 add_subdirectory(libs/vectormath)
+include(libs/unix)
 
 if(GFX_API_DX12)
     add_subdirectory(libs/d3d12x)

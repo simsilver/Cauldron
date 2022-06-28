@@ -24,7 +24,7 @@
 #include "Base/DynamicBufferRing.h"
 #include "Base/ExtDebugUtils.h"
 #include "Base/Helper.h"
-#include "base/SwapChain.h"
+#include "Base/SwapChain.h"
 #include "Misc/Misc.h"
 
 #include <cassert>

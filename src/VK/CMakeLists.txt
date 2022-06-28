@@ -43,57 +43,57 @@ set(PostProc_src
 )
 
 set(Base_src
-    base/CommandListRing.cpp
-    base/CommandListRing.h
-    base/Device.cpp
-    base/Device.h
-    base/DeviceProperties.cpp
-    base/DeviceProperties.h
-    base/DynamicBufferRing.cpp
-    base/DynamicBufferRing.h
-    base/GBuffer.cpp
-    base/GBuffer.h
-    base/GPUTimestamps.cpp
-    base/GPUTimestamps.h
-	base/FrameworkWindows.cpp
-	base/FrameworkWindows.h
-    base/FreeSyncHDR.cpp
-    base/FreeSyncHDR.h
-    base/Helper.cpp
-    base/Helper.h
-    base/Imgui.cpp
-    base/Imgui.h
-    base/Instance.cpp
-    base/Instance.h
-    base/InstanceProperties.cpp
-    base/InstanceProperties.h
-    base/ResourceViewHeaps.cpp
-    base/ResourceViewHeaps.h
-    base/ShaderCompilerHelper.cpp
-    base/ShaderCompilerHelper.h
-    base/StaticBufferPool.cpp
-    base/StaticBufferPool.h
-    base/SwapChain.cpp
-    base/SwapChain.h
-    base/Texture.cpp
-    base/Texture.h
-    base/UploadHeap.cpp
-    base/UploadHeap.h
+    Base/CommandListRing.cpp
+    Base/CommandListRing.h
+    Base/Device.cpp
+    Base/Device.h
+    Base/DeviceProperties.cpp
+    Base/DeviceProperties.h
+    Base/DynamicBufferRing.cpp
+    Base/DynamicBufferRing.h
+    Base/GBuffer.cpp
+    Base/GBuffer.h
+    Base/GPUTimestamps.cpp
+    Base/GPUTimestamps.h
+    Base/FrameworkWindows.cpp
+    Base/FrameworkWindows.h
+    Base/FreeSyncHDR.cpp
+    Base/FreeSyncHDR.h
+    Base/Helper.cpp
+    Base/Helper.h
+    Base/Imgui.cpp
+    Base/Imgui.h
+    Base/Instance.cpp
+    Base/Instance.h
+    Base/InstanceProperties.cpp
+    Base/InstanceProperties.h
+    Base/ResourceViewHeaps.cpp
+    Base/ResourceViewHeaps.h
+    Base/ShaderCompilerHelper.cpp
+    Base/ShaderCompilerHelper.h
+    Base/StaticBufferPool.cpp
+    Base/StaticBufferPool.h
+    Base/SwapChain.cpp
+    Base/SwapChain.h
+    Base/Texture.cpp
+    Base/Texture.h
+    Base/UploadHeap.cpp
+    Base/UploadHeap.h
 )
 
 set(Extensions_src
-    base/ExtFreeSyncHDR.cpp
-    base/ExtFreeSyncHDR.h
-    base/ExtFp16.cpp
-    base/ExtFp16.h
-    base/ExtRayTracing.cpp
-	base/ExtRayTracing.h
-    base/ExtValidation.cpp
-    base/ExtValidation.h
-	base/ExtVRS.cpp
-	base/ExtVRS.h
-    base/ExtDebugUtils.cpp
-    base/ExtDebugUtils.h
+    Base/ExtFreeSyncHDR.cpp
+    Base/ExtFreeSyncHDR.h
+    Base/ExtFp16.cpp
+    Base/ExtFp16.h
+    Base/ExtRayTracing.cpp
+    Base/ExtRayTracing.h
+    Base/ExtValidation.cpp
+    Base/ExtValidation.h
+    Base/ExtVRS.cpp
+    Base/ExtVRS.h
+    Base/ExtDebugUtils.cpp
+    Base/ExtDebugUtils.h
 )
 
 set(Widgets_src
@@ -144,7 +144,9 @@ set(Shaders_GLTF_src
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders/perFrameStruct.h
 )
 
-add_library (Cauldron_VK STATIC ${GLTF_src} ${PostProc_src} ${Base_src} ${Widgets_src} ${Extensions_src})
+#add_library (Cauldron_VK STATIC ${GLTF_src} ${PostProc_src} ${Base_src} ${Widgets_src} ${Extensions_src})
+add_library (Cauldron_VK STATIC stdafx.cpp
+)
 
 target_link_libraries (Cauldron_VK Cauldron_Common Vulkan::Vulkan)
 target_include_directories (Cauldron_VK PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

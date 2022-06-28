@@ -19,7 +19,7 @@
 #pragma once
 
 #include "PostProcPS.h"
-#include "blurPS.h"
+#include "BlurPS.h"
 
 namespace CAULDRON_DX12
 {
