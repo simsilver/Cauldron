@@ -28,7 +28,11 @@ ImgLoader *CreateImageLoader(const char *pFilename)
     // get the last 4 char (assuming this is the file extension)
     size_t len = strlen(pFilename);
     const char* ext = pFilename + (len - 4);
+#ifdef _WIN32
     if(_stricmp(ext, ".dds") == 0)
+#else
+    if(strcasecmp(ext, ".dds") == 0)
+#endif
     {
         return new DDSLoader();
     }

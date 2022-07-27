@@ -63,7 +63,11 @@ void SplitGltfAttribute(std::string attribute, std::string *semanticName, uint32
 
 math::Vector4 GetVector(const json::array_t &accessor)
 {
-    return math::Vector4(accessor[0], accessor[1], accessor[2], (accessor.size() == 4) ? accessor[3] : 0);
+    float v = 0.f;
+    if(accessor.size() == 4) {
+        v = accessor[3];
+    }
+    return math::Vector4(accessor[0], accessor[1], accessor[2], v);
 }
 
 math::Matrix4 GetMatrix(const json::array_t &accessor)
@@ -119,33 +123,33 @@ std::string GetElementString(const json::object_t &root, const char *path, std::
     return GetElement<std::string>(&root, path, pDefault);
 }
 
-bool GetElementBoolean(const json::object_t &root, const char *path, bool default)
+bool GetElementBoolean(const json::object_t &root, const char *path, bool pDefault)
 {
-    return GetElement<bool>(&root, path, default);
+    return GetElement<bool>(&root, path, pDefault);
 }
 
-float GetElementFloat(const json::object_t &root, const char *path, float default)
+float GetElementFloat(const json::object_t &root, const char *path, float pDefault)
 {
-    return GetElement<float>(&root, path, default);
+    return GetElement<float>(&root, path, pDefault);
 }
 
-int GetElementInt(const json::object_t &root, const char *path, int default)
+int GetElementInt(const json::object_t &root, const char *path, int pDefault)
 {
-    return GetElement<int>(&root, path, default);
+    return GetElement<int>(&root, path, pDefault);
 }
 
-json::array_t GetElementJsonArray(const json::object_t &root, const char *path, json::array_t default)
+json::array_t GetElementJsonArray(const json::object_t &root, const char *path, json::array_t pDefault)
 {
-    return GetElement<json::array_t>(&root, path, default);
+    return GetElement<json::array_t>(&root, path, pDefault);
 }
 
-math::Vector4 GetElementVector(json::object_t &root, const char *path, math::Vector4 default)
+math::Vector4 GetElementVector(json::object_t &root, const char *path, math::Vector4 pDefault)
 {
     if (root.find(path) != root.end() && !root[path].is_null())
     {
         return GetVector(root[path].get<json::array_t>());
     }
     else
-        return default;
+        return pDefault;
 }
 

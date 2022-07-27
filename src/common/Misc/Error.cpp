@@ -20,6 +20,7 @@
 #include "stdafx.h"
 #include "Error.h"
 
+#ifdef _WIN32
 void ShowErrorMessageBox(LPCWSTR lpErrorString)
 {
     int msgboxID = MessageBoxW(NULL, lpErrorString, L"Error", MB_OK);
@@ -29,3 +30,17 @@ void ShowCustomErrorMessageBox(_In_opt_ LPCWSTR lpErrorString)
 {
     int msgboxID = MessageBoxW(NULL, lpErrorString, L"Error", MB_OK | MB_TOPMOST);
 }
+#else
+void ShowErrorMessageBox(char* lpErrorString){
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                           "Error",
+                           lpErrorString,
+                           NULL);
+}
+void ShowCustomErrorMessageBox(_In_opt_ char* lpErrorString){
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                           "Error",
+                           lpErrorString,
+                           NULL);
+}
+#endif

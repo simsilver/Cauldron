@@ -85,7 +85,11 @@ void BenchmarkConfig(const json& benchmark, int cameraId, GLTFCommon *pGltfLoade
     //get filename and open it
     std::string resultsFilename = benchmark.value("resultsFilename", "res.csv");
     bm.m_saveHeaders = true;
+#ifndef _MSC_VER
+    if((bm.f = fopen(resultsFilename.c_str(), "w")) == nullptr)
+#else
     if(fopen_s(&bm.f, resultsFilename.c_str(), "w") != 0)
+#endif
     {
         Trace(format("The file %s cannot be opened\n", resultsFilename.c_str()));
         exit(0);
@@ -162,7 +166,14 @@ float BenchmarkLoop(const std::vector<TimeStamp> &timeStamps, Camera *pCam, std:
 
         if (bm.exitWhenTimeEnds)
         {
+#ifdef _MSC_VER
             PostQuitMessage(0);
+#else
+            SDL_Event event;
+            event.type = SDL_QUIT;
+            event.quit.timestamp = SDL_GetTicks();
+            SDL_PushEvent(&event);
+#endif
             return bm.time; 
         }
     }

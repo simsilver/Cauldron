@@ -5,7 +5,7 @@
 
 #pragma once
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <SDKDDKVer.h>
 
 #define NOMINMAX    
@@ -30,7 +30,6 @@
 #include <malloc.h>
 #include <cassert>
 #include <cstdlib>
-#include <cmath>
 
 #include <aio.h>
 #include <cstddef>
@@ -39,10 +38,18 @@
 #include <string>
 #include <cstdarg>
 
+#include <unistd.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+
 #include "my_adapter.h"
 #endif
+
+// math API
+#include <DirectXMath.h>
+using namespace DirectX;
 
 #include <string>
 #include <map>
@@ -53,10 +60,6 @@
 #include <limits>
 #include <algorithm>
 #include <mutex>
-
-// math API
-#include <DirectXMath.h>
-using namespace DirectX;
 
 
 

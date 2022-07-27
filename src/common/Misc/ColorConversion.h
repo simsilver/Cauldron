@@ -20,7 +20,9 @@
 
 #include "../../libs/vectormath/vectormath.hpp"
 #include <stdint.h>
+#ifdef _WIN32
 #include <minmax.h>
+#endif
 
 enum ColorSpace
 {

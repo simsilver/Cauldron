@@ -20,6 +20,7 @@
 #pragma once
 #include "Misc.h"
 
+#ifdef _WIN32
 void ShowErrorMessageBox(LPCWSTR lpErrorString);
 void ShowCustomErrorMessageBox(_In_opt_ LPCWSTR lpErrorString);
 
@@ -40,3 +41,12 @@ inline void ThrowIfFailed(HRESULT hr)
         throw 1;
     }
 }
+#else
+void ShowErrorMessageBox(char* lpErrorString);
+void ShowCustomErrorMessageBox(_In_opt_ char* lpErrorString);
+
+inline void ThrowIfFailed(void* hr)
+{
+    assert(0 && "Not impled");
+}
+#endif

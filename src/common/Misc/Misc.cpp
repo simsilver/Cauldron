@@ -1,5 +1,5 @@
 // AMD Cauldron code
-//
+// 
 // Copyright(c) 2020 Advanced Micro Devices, Inc.All rights reserved.
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files(the "Software"), to deal
@@ -23,17 +23,21 @@
 //
 // Get current time in milliseconds
 //
-double MillisecondsNow() {
-#ifdef WIN32
+double MillisecondsNow()
+{
+#ifdef _MSC_VER
     static LARGE_INTEGER s_frequency;
     static BOOL s_use_qpc = QueryPerformanceFrequency(&s_frequency);
     double milliseconds = 0;
 
-    if (s_use_qpc) {
+    if (s_use_qpc)
+    {
         LARGE_INTEGER now;
         QueryPerformanceCounter(&now);
         milliseconds = double(1000.0 * now.QuadPart) / s_frequency.QuadPart;
-    } else {
+    }
+    else
+    {
         milliseconds = double(GetTickCount());
     }
 #else
@@ -43,38 +47,54 @@ double MillisecondsNow() {
 
     milliseconds = spec.tv_sec * 1000 + spec.tv_nsec / 1e6;
 #endif
-
     return milliseconds;
 }
 
-class MessageBuffer {
+class MessageBuffer
+{
 public:
-    MessageBuffer(size_t len) : m_dynamic(len > STATIC_LEN ? len : 0),
-                                m_ptr(len > STATIC_LEN ? m_dynamic.data() : m_static) {
+    MessageBuffer(size_t len) :
+        m_dynamic(len > STATIC_LEN ? len : 0),
+        m_ptr(len > STATIC_LEN ? m_dynamic.data() : m_static)
+    {
     }
-    char *Data() { return m_ptr; }
+    char* Data() { return m_ptr; }
 
 private:
     static const size_t STATIC_LEN = 256;
     char m_static[STATIC_LEN];
     std::vector<char> m_dynamic;
-    char *m_ptr;
+    char* m_ptr;
 };
 
+#ifndef _MSC_VER
+inline size_t vscprintf(const char *format, va_list pargs) {
+    int retval;
+    va_list argcopy;
+    va_copy(argcopy, pargs);
+    retval = vsnprintf(nullptr, 0, format, argcopy);
+    va_end(argcopy);
+    if (retval < 0) {
+        retval = 0;
+    }
+    return retval;
+}
+#endif
 //
 // Formats a string
 //
-std::string format(const char *format, ...) {
+std::string format(const char* format, ...)
+{
     va_list args;
     va_start(args, format);
 #ifndef _MSC_VER
-    size_t size = std::snprintf(nullptr, 0, format, args) + 1;// Extra space for '\0'
+    size_t size = vscprintf(format, args) + 1;// Extra space for '\0'
     MessageBuffer buf(size);
     std::vsnprintf(buf.Data(), size, format, args);
     va_end(args);
-    return std::string(buf.Data(), buf.Data() + size - 1);// We don't want the '\0' inside
+    return std::string(buf.Data(), buf.Data() + size - 1); // We don't want the '\0' inside
 #else
-    const size_t size = (size_t) _vscprintf(format, args) + 1;
+    const size_t size = (size_t)_vscprintf(format, args) + 1;
     MessageBuffer buf(size);
     vsnprintf_s(buf.Data(), size, _TRUNCATE, format, args);
     va_end(args);
@@ -82,35 +102,43 @@ std::string format(const char *format, ...) {
 #endif
 }
 
-void Trace(const std::string &str) {
+void Trace(const std::string &str)
+{
     std::mutex mutex;
     std::unique_lock<std::mutex> lock(mutex);
-
-#ifdef WIN32
+    
+#ifdef _MSC_VER
     // Output to attached debugger
     OutputDebugStringA(str.c_str());
+#else
+    printf(str.c_str());
 #endif
 
     // Also log to file
     Log::Trace(str.c_str());
 }
 
-void Trace(const char *pFormat, ...) {
+void Trace(const char* pFormat, ...)
+{
     std::mutex mutex;
     std::unique_lock<std::mutex> lock(mutex);
 
     va_list args;
+
     // generate formatted string
     va_start(args, pFormat);
 
 #ifndef _MSC_VER
-    size_t bufLen = std::snprintf(nullptr, 0, pFormat, args) + 2;
+    size_t bufLen = vscprintf(pFormat, args) + 2;
     MessageBuffer buf(bufLen);
     std::vsnprintf(buf.Data(), bufLen, pFormat, args);
     va_end(args);
     strncat(buf.Data(), "\n", bufLen);
+
+    // Output to stdio
+    printf("%s", buf.Data());
 #else
-    const size_t bufLen = (size_t) _vscprintf(pFormat, args) + 2;
+    const size_t bufLen = (size_t)_vscprintf(pFormat, args) + 2;
     MessageBuffer buf(bufLen);
     vsnprintf_s(buf.Data(), bufLen, bufLen, pFormat, args);
     va_end(args);
@@ -127,19 +155,19 @@ void Trace(const char *pFormat, ...) {
 //
 //  Reads a file into a buffer
 //
-bool ReadFile(const char *name, char **data, size_t *size, bool isbinary) {
+bool ReadFile(const char *name, char **data, size_t *size, bool isbinary)
+{
     FILE *file;
 
     //Open file
 #ifndef _MSC_VER
-    if ((file = fopen(name, isbinary ? "rb" : "r")) == nullptr) {
-        return false;
-    }
+    if ((file = fopen(name, isbinary ? "rb" : "r")) == nullptr) 
 #else
-    if (fopen_s(&file, name, isbinary ? "rb" : "r") != 0) {
+    if (fopen_s(&file, name, isbinary ? "rb" : "r") != 0)
+#endif
+    {
         return false;
     }
-#endif
 
     //Get file length
     fseek(file, 0, SEEK_END);
@@ -151,21 +179,24 @@ bool ReadFile(const char *name, char **data, size_t *size, bool isbinary) {
         fileLen++;
 
     //Allocate memory
-    char *buffer = (char *) malloc(std::max<size_t>(fileLen, 1));
-    if (!buffer) {
+    char *buffer = (char *)malloc(std::max<size_t>(fileLen, 1));
+    if (!buffer)
+    {
         fclose(file);
         return false;
     }
 
     //Read file contents into buffer
     size_t bytesRead = 0;
-    if (fileLen > 0) {
+    if(fileLen > 0)
+    {
         bytesRead = fread(buffer, 1, fileLen, file);
     }
     fclose(file);
 
-    if (!isbinary) {
-        buffer[bytesRead] = 0;
+    if (!isbinary)
+    {
+        buffer[bytesRead] = 0;    
         fileLen = bytesRead;
     }
 
@@ -176,13 +207,15 @@ bool ReadFile(const char *name, char **data, size_t *size, bool isbinary) {
     return true;
 }
 
-bool SaveFile(const char *name, void const *data, size_t size, bool isbinary) {
+bool SaveFile(const char *name, void const*data, size_t size, bool isbinary)
+{
     FILE *file;
 #ifndef _MSC_VER
-    if ((file = fopen(name, isbinary ? "rb" : "r")) != nullptr) {
+    if ((file = fopen(name, isbinary ? "rb" : "r")) != nullptr) 
 #else
-    if (fopen_s(&file, name, isbinary ? "wb" : "w") == 0) {
+    if (fopen_s(&file, name, isbinary ? "wb" : "w") == 0)
 #endif
+    {
         fwrite(data, size, 1, file);
         fclose(file);
         return true;
@@ -194,8 +227,9 @@ bool SaveFile(const char *name, void const *data, size_t size, bool isbinary) {
 //
 // Launch a process, captures stderr into a file
 //
-bool LaunchProcess(const char *commandLine, const char *filenameErr) {
-#ifdef WIN32
+bool LaunchProcess(const char* commandLine, const char* filenameErr)
+{
+#ifdef _MSC_VER
     char cmdLine[1024];
     strcpy_s<1024>(cmdLine, commandLine);
 
@@ -221,22 +255,28 @@ bool LaunchProcess(const char *commandLine, const char *filenameErr) {
     si.hStdOutput = g_hChildStd_OUT_Wr;
     si.wShowWindow = SW_HIDE;
 
-    if (CreateProcessA(NULL, cmdLine, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+    if (CreateProcessA(NULL, cmdLine, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    {
         WaitForSingleObject(pi.hProcess, INFINITE);
         CloseHandle(g_hChildStd_OUT_Wr);
 
         ULONG rc;
-        if (GetExitCodeProcess(pi.hProcess, &rc)) {
-            if (rc == 0) {
+        if (GetExitCodeProcess(pi.hProcess, &rc))
+        {
+            if (rc == 0)
+            {
                 DeleteFileA(filenameErr);
                 return true;
-            } else {
+            }
+            else
+            {
                 Trace(format("*** Process %s returned an error, see %s ***\n\n", commandLine, filenameErr));
 
                 // save errors to disk
                 std::ofstream ofs(filenameErr, std::ofstream::out);
 
-                for (;;) {
+                for (;;)
+                {
                     DWORD dwRead;
                     char chBuf[2049];
                     BOOL bSuccess = ReadFile(g_hChildStd_OUT_Rd, chBuf, 2048, &dwRead, NULL);
@@ -255,20 +295,84 @@ bool LaunchProcess(const char *commandLine, const char *filenameErr) {
         CloseHandle(g_hChildStd_OUT_Rd);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
-    } else {
+    }
+    else
+    {
         Trace(format("*** Can't launch: %s \n", commandLine));
     }
 
     return false;
 #else
-  return false;
+    char cmdLine[1024];
+    strncpy(cmdLine, commandLine, 1024);
+
+    // create a pipe to get possible errors from the process
+    int filedes[2];
+    if (pipe(filedes) == -1) {
+        return false;
+    }
+
+    // launch process
+    pid_t pid = fork();
+    switch (pid) {
+        case -1: {
+            close(filedes[1]);
+            close(filedes[0]);
+            Trace(format("*** Can't launch: %s for fork error\n", commandLine).c_str());
+            break;
+        }
+        case 0: {
+            dup2(filedes[1], STDERR_FILENO);
+            dup2(filedes[1], STDOUT_FILENO);
+            close(filedes[1]);
+            close(filedes[0]);
+            execl(cmdLine, cmdLine, (char *) 0);
+            Trace(format("*** Can't launch: %s for execl error\n", commandLine).c_str());
+            exit(-1);
+            break;
+        }
+        default: {
+            close(filedes[1]);
+            int status;
+            if (waitpid(pid, &status, 0) != -1) {
+                if (status == 0) {
+                    close(filedes[0]);
+                    remove(filenameErr);
+                    return true;
+                } else {
+                    Trace(format("*** Process %s returned an error, see %s ***\n\n", commandLine, filenameErr).c_str());
+
+                    // save errors to disk
+                    std::ofstream ofs(filenameErr, std::ofstream::out);
+
+                    for (;;) {
+                        size_t dwRead;
+                        char chBuf[2049];
+                        dwRead = read(filedes[0], chBuf, 2048);
+                        chBuf[dwRead] = 0;
+                        if (dwRead == 0) break;
+
+                        Trace(chBuf);
+
+                        ofs << chBuf;
+                    }
+
+                    ofs.close();
+                }
+            }
+            close(filedes[0]);
+            break;
+        }
+    }
+    return false;
 #endif
 }
 
 //
-// Frustum culls an AABB. The culling is done in clip space.
+// Frustum culls an AABB. The culling is done in clip space. 
 //
-bool CameraFrustumToBoxCollision(const math::Matrix4 &mCameraViewProj, const math::Vector4 &boxCenter, const math::Vector4 &boxExtent) {
+bool CameraFrustumToBoxCollision(const math::Matrix4& mCameraViewProj, const math::Vector4& boxCenter, const math::Vector4& boxExtent)
+{
     float ex = boxExtent.getX();
     float ey = boxExtent.getY();
     float ez = boxExtent.getZ();
@@ -288,7 +392,8 @@ bool CameraFrustumToBoxCollision(const math::Matrix4 &mCameraViewProj, const mat
     uint32_t top = 0;
     uint32_t bottom = 0;
     uint32_t back = 0;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++)
+    {
         float x = p[i].getX();
         float y = p[i].getY();
         float z = p[i].getZ();
@@ -306,39 +411,53 @@ bool CameraFrustumToBoxCollision(const math::Matrix4 &mCameraViewProj, const mat
 
 
 AxisAlignedBoundingBox::AxisAlignedBoundingBox()
-    : m_min(), m_max(), m_isEmpty{true} {
+    : m_min()
+    , m_max()
+    , m_isEmpty{ true }
+{
 }
 
-void AxisAlignedBoundingBox::Merge(const AxisAlignedBoundingBox &bb) {
+void AxisAlignedBoundingBox::Merge(const AxisAlignedBoundingBox& bb)
+{
     if (bb.m_isEmpty)
         return;
 
-    if (m_isEmpty) {
+    if (m_isEmpty)
+    {
         m_max = bb.m_max;
         m_min = bb.m_min;
         m_isEmpty = false;
-    } else {
+    }
+    else
+    {
         m_min = Vectormath::SSE::minPerElem(m_min, bb.m_min);
         m_max = Vectormath::SSE::maxPerElem(m_max, bb.m_max);
     }
 }
 
-void AxisAlignedBoundingBox::Grow(const math::Vector4 v) {
-    if (m_isEmpty) {
+void AxisAlignedBoundingBox::Grow(const math::Vector4 v)
+{
+    if (m_isEmpty)
+    {
         m_max = v;
         m_min = v;
         m_isEmpty = false;
-    } else {
+    }
+    else
+    {
         m_min = Vectormath::SSE::minPerElem(m_min, v);
         m_max = Vectormath::SSE::maxPerElem(m_max, v);
     }
 }
 
-bool AxisAlignedBoundingBox::HasNoVolume() const {
-    return m_isEmpty || (m_max.getX() == m_min.getX() && m_max.getY() == m_min.getY() && m_max.getZ() == m_min.getZ());
+bool AxisAlignedBoundingBox::HasNoVolume() const
+{
+    return m_isEmpty
+        || (m_max.getX() == m_min.getX() && m_max.getY() == m_min.getY() && m_max.getZ() == m_min.getZ());
 }
 
-AxisAlignedBoundingBox GetAABBInGivenSpace(const math::Matrix4 &mTransform, const math::Vector4 &boxCenter, const math::Vector4 &boxExtent) {
+AxisAlignedBoundingBox GetAABBInGivenSpace(const math::Matrix4& mTransform, const math::Vector4& boxCenter, const math::Vector4& boxExtent)
+{
     float ex = boxExtent.getX();
     float ey = boxExtent.getY();
     float ez = boxExtent.getZ();
@@ -358,23 +477,27 @@ AxisAlignedBoundingBox GetAABBInGivenSpace(const math::Matrix4 &mTransform, cons
 
     for (int i = 0; i < 8; ++i)
         aabb.Grow(p[i]);
-
+    
     return aabb;
 }
 
 
-int countBits(uint32_t v) {
-    v = v - ((v >> 1) & 0x55555555);               // put count of each 2 bits into those 2 bits
-    v = (v & 0x33333333) + ((v >> 2) & 0x33333333);// put count of each 4 bits into those 4 bits
+int countBits(uint32_t v) 
+{
+    v = v - ((v >> 1) & 0x55555555);                // put count of each 2 bits into those 2 bits
+    v = (v & 0x33333333) + ((v >> 2) & 0x33333333); // put count of each 4 bits into those 4 bits  
     return ((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
 }
 
 
-Log *Log::m_pLogInstance = nullptr;
 
-int Log::InitLogSystem() {
+Log* Log::m_pLogInstance = nullptr;
+
+int Log::InitLogSystem()
+{
     // Create an instance of the log system if non already exists
-    if (!m_pLogInstance) {
+    if (!m_pLogInstance)
+    {
         m_pLogInstance = new Log();
         assert(m_pLogInstance);
         if (m_pLogInstance)
@@ -385,8 +508,10 @@ int Log::InitLogSystem() {
     return -1;
 }
 
-int Log::TerminateLogSystem() {
-    if (m_pLogInstance) {
+int Log::TerminateLogSystem()
+{
+    if (m_pLogInstance)
+    {
         delete m_pLogInstance;
         m_pLogInstance = nullptr;
         return 0;
@@ -396,60 +521,65 @@ int Log::TerminateLogSystem() {
     return -1;
 }
 
-void Log::Trace(const char *LogString) {
-    assert(m_pLogInstance);// Can't do anything without a valid instance
-    if (m_pLogInstance) {
+void Log::Trace(const char* LogString)
+{
+    assert(m_pLogInstance); // Can't do anything without a valid instance
+    if (m_pLogInstance)
+    {
         m_pLogInstance->Write(LogString);
     }
 }
 
 class LogImpl {
-#ifdef WIN32
+#ifdef _WIN32
 private:
     HANDLE m_FileHandle = INVALID_HANDLE_VALUE;
-#define MAX_INFLIGHT_WRITES 32
-
+    #define MAX_INFLIGHT_WRITES 32
+    
     OVERLAPPED m_OverlappedData[MAX_INFLIGHT_WRITES];
     uint32_t m_CurrentIOBufferIndex = 0;
 
     uint32_t m_WriteOffset = 0;
-
 public:
-    LogImpl() {
+    LogImpl()
+    {
         PWSTR path = NULL;
         SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &path);
         CreateDirectoryW((std::wstring(path) + L"\\AMD").c_str(), 0);
         CreateDirectoryW((std::wstring(path) + L"\\AMD\\Cauldron\\").c_str(), 0);
 
-        m_FileHandle = CreateFileW((std::wstring(path) + L"\\AMD\\Cauldron\\Cauldron.log").c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_FLAG_OVERLAPPED, nullptr);
+        m_FileHandle = CreateFileW((std::wstring(path)+L"\\AMD\\Cauldron\\Cauldron.log").c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_FLAG_OVERLAPPED, nullptr);
         assert(m_FileHandle != INVALID_HANDLE_VALUE);
 
         // Initialize the overlapped structure for asynchronous write
         for (uint32_t i = 0; i < MAX_INFLIGHT_WRITES; i++)
-            m_OverlappedData[i] = {0};
+            m_OverlappedData[i] = { 0 };
     }
 
-    virtual ~LogImpl() {
+    virtual ~LogImpl()
+    {
         CloseHandle(m_FileHandle);
         m_FileHandle = INVALID_HANDLE_VALUE;
     }
 
-    void OverlappedCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped) {
+    void OverlappedCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
+    {
         // We never go into an alert state, so this is just to compile
     }
 
-    void Write(const char *LogString) {
-        OVERLAPPED *pOverlapped = &m_OverlappedData[m_CurrentIOBufferIndex];
+    void Write(const char* LogString)
+    {
+        OVERLAPPED* pOverlapped = &m_OverlappedData[m_CurrentIOBufferIndex];
 
         // Make sure any previous write with this overlapped structure has completed
         DWORD numTransferedBytes;
-        GetOverlappedResult(m_FileHandle, pOverlapped, &numTransferedBytes, TRUE);// This will wait on the current thread
+        GetOverlappedResult(m_FileHandle, pOverlapped, &numTransferedBytes, TRUE);  // This will wait on the current thread
 
         // Apply increments accordingly
         pOverlapped->Offset = m_WriteOffset;
         m_WriteOffset += static_cast<uint32_t>(strlen(LogString));
-
-        m_CurrentIOBufferIndex = (++m_CurrentIOBufferIndex % MAX_INFLIGHT_WRITES);// Wrap when we get to the end
+        
+        m_CurrentIOBufferIndex = (++m_CurrentIOBufferIndex % MAX_INFLIGHT_WRITES);  // Wrap when we get to the end
 
         bool result = WriteFileEx(m_FileHandle, LogString, static_cast<DWORD>(strlen(LogString)), pOverlapped, OverlappedCompletionRoutine);
         assert(result);

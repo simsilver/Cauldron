@@ -72,8 +72,13 @@ size_t HashShaderString(const char *pRootDir, const char *pShader, size_t hash)
                         pch++;
 
                     char includeName[1024];
+#ifdef _MSC_VER
                     strcpy_s<1024>(includeName, pRootDir);
                     strncat_s<1024>(includeName, pName, pch - pName);
+#else
+                    my_strcpy_size(includeName, pRootDir, 1024);
+                    my_strncat_size(includeName, pName, pch - pName, 1024);
+#endif
 
                     pch++;
 

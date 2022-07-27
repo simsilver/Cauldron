@@ -47,12 +47,29 @@ set(FidelityFX_src
 )
 
 #add_library (Cauldron_Common STATIC ${Base_src} ${GLTF_src} ${Misc_src} ${shader_compiler_src} ${media_src})
- add_library (Cauldron_Common STATIC stdafx.cpp ${media_src}
-   "Base/Sequence.cpp"
+ add_library (Cauldron_Common STATIC ${Base_src} ${GLTF_src} ${media_src}
    "Base/ShaderCompilerCache.cpp"
+   "Base/ShaderCompiler.cpp"
    "Misc/Misc.cpp"
+   "Misc/Async.cpp"
+   "Misc/Camera.cpp"
+   "Misc/ColorConversion.cpp"
+   "Misc/Hash.cpp"
+   "Misc/ImgLoader.cpp"
+   "Misc/ThreadPool.cpp"
+   "Misc/WirePrimitives.cpp"
+   "Misc/DxgiFormatHelper.cpp"
+   "Misc/WICLoader.cpp"
+#   "Misc/DDSLoader.cpp"
+   "Misc/Error.cpp"
+
 	 )
+if(MSVC)
 target_link_libraries (Cauldron_Common PUBLIC NJSON STB DXC Shcore)
+else()
+target_precompile_headers(Cauldron_Common PUBLIC stdafx.h)
+target_link_libraries (Cauldron_Common PUBLIC NJSON STB DXC Shcore ${SDL2_LIBRARIES})
+endif()
 target_include_directories (Cauldron_Common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(media_src

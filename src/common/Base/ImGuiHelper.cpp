@@ -20,11 +20,17 @@
 #include "stdafx.h"
 #include "ImGuiHelper.h"
 
+#ifndef _WIN32
+#else
 static HWND g_hWnd;
+#endif
 
 bool ImGUI_Init(void *hwnd)
 {
+#ifndef _WIN32
+#else
     g_hWnd = (HWND)hwnd;
+#endif
 
     ImGuiIO& io = ImGui::GetIO();
     io.KeyMap[ImGuiKey_Tab] = VK_TAB;                       // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array that we will update during the application lifetime.
@@ -48,7 +54,10 @@ bool ImGUI_Init(void *hwnd)
     io.KeyMap[ImGuiKey_Z] = 'Z';
 
     io.RenderDrawListsFn = NULL;
+#ifndef _WIN32
+#else
     io.ImeWindowHandle = g_hWnd;
+#endif
 
     return true;
 }
@@ -56,13 +65,35 @@ bool ImGUI_Init(void *hwnd)
 void ImGUI_Shutdown()
 {
     ImGui::Shutdown();
+#ifndef _WIN32
+#else
     g_hWnd = NULL;
+#endif
 }
 
 void ImGUI_UpdateIO(int w, int h)
 {
     ImGuiIO& io = ImGui::GetIO();
 
+#ifndef _WIN32
+
+    io.DisplaySize = ImVec2((float)w, (float)h);
+
+    // Read keyboard modifiers inputs
+    const Uint8 *state = SDL_GetKeyboardState(nullptr);
+    io.KeyCtrl = state[VK_CONTROL] != 0;
+    io.KeyShift = state[VK_SHIFT] != 0;
+    io.KeyAlt = state[VK_MENU] != 0;
+    io.KeySuper = false;
+    // io.KeysDown : filled by WM_KEYDOWN/WM_KEYUP events
+    // io.MousePos : filled by WM_MOUSEMOVE events
+    // io.MouseDown : filled by WM_*BUTTON* events
+    // io.MouseWheel : filled by WM_MOUSEWHEEL events
+
+    // Hide OS mouse cursor if ImGui is drawing it
+    if (io.MouseDrawCursor)
+        SDL_ShowCursor(SDL_DISABLE);    // Start the frame
+#else
     // Setup display size (every frame to accommodate for window resizing)
     RECT rect;
     GetClientRect(g_hWnd, &rect);
@@ -83,6 +114,7 @@ void ImGUI_UpdateIO(int w, int h)
     // Hide OS mouse cursor if ImGui is drawing it
     if (io.MouseDrawCursor)
         SetCursor(NULL);    // Start the frame
+#endif
 }
 
 static bool IsAnyMouseButtonDown()
@@ -94,6 +126,8 @@ static bool IsAnyMouseButtonDown()
     return false;
 }
 
+#ifndef _WIN32
+#else
 IMGUI_API LRESULT ImGUI_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -156,3 +190,4 @@ IMGUI_API LRESULT ImGUI_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARA
     }
     return 0;
 }
+#endif

@@ -23,5 +23,8 @@
 bool ImGUI_Init(void *hwnd);
 void ImGUI_Shutdown();
 void ImGUI_UpdateIO(int w, int h);
+#ifndef _WIN32
+#else
 LRESULT ImGUI_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
 
